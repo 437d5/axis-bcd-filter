@@ -36,23 +36,18 @@ module axis_bcd_filter #(
     assign m_axis.tdata  = obuf_data;
 
     always @(posedge clk) begin
-        if (rst) begin
+    if (rst) begin
+        obuf_valid <= 1'b0;
+        obuf_data  <= 8'b0;
+    end else begin
+        if (obuf_valid && m_axis.tready)
             obuf_valid <= 1'b0;
-            obuf_data  <= 8'b0;
-        end else begin
-            if (obuf_valid && m_axis.tready) begin
-                obuf_valid <= 1'b0;
-            end
-            
-            if (s_axis.tready && s_axis.tvalid) begin
-                if (pass) begin
-                    obuf_valid <= 1'b1;
-                    obuf_data  <= s_axis.tdata;
-                end else begin
-                    obuf_valid <= 1'b0;
-                end
-            end
+
+        if (s_axis.tready && s_axis.tvalid && pass) begin
+            obuf_valid <= 1'b1;
+            obuf_data  <= s_axis.tdata;
         end
-    end 
+    end
+end 
 
 endmodule
